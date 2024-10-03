@@ -7,7 +7,7 @@
 
 using namespace std;
 
-vector<int> ReadInstance(string instance_path, int& page_quant)
+vector<int> ReadInstance(string instance_path, int& frame_quant)
 {
     vector<int> page_refs;
     int number;
@@ -18,7 +18,7 @@ vector<int> ReadInstance(string instance_path, int& page_quant)
         return page_refs;
     }
 
-    fp >> page_quant;
+    fp >> frame_quant;
 
     while(fp >> number){
         page_refs.push_back(number);
@@ -81,18 +81,18 @@ int FurthestFrameBackward(vector<int>& page_refs, deque<int>& page_deque, int cu
 }
 
 // Algorithms, each returns the number of page misses that happened
-// Assumes page_quant is always smaller than page_ref list
-int FirstInFirstOut(vector<int>& page_refs, int page_quant)
+// Assumes frame_quant is always smaller than page_ref list
+int FirstInFirstOut(vector<int>& page_refs, int frame_quant)
 {
     deque<int> page_deque;  // double-ended queue for iterators and extra pop funcs
     int page_misses = 0;
 
-    // First fill up the deque with the first 'page_quant' values of page_refs vec
-    page_deque.insert(page_deque.end(), page_refs.begin(), page_refs.begin() + page_quant);
-    page_misses += page_quant;
+    // First fill up the deque with the first 'frame_quant' values of page_refs vec
+    page_deque.insert(page_deque.end(), page_refs.begin(), page_refs.begin() + frame_quant);
+    page_misses += frame_quant;
 
-    // Then go through page_refs checking it, starting from the element after page_quant elements from beginning
-    for(int i = page_quant; i < (int)page_refs.size(); i++){
+    // Then go through page_refs checking it, starting from the element after frame_quant elements from beginning
+    for(int i = frame_quant; i < (int)page_refs.size(); i++){
         // Check if it's found curr iter's number in the deque. If so, no page missed and skip to next iter
         if(find(page_deque.begin(), page_deque.end(), page_refs[i]) != page_deque.end()){
             continue;
@@ -107,16 +107,16 @@ int FirstInFirstOut(vector<int>& page_refs, int page_quant)
     return page_misses;
 }
 
-int OptimalAlgorithm(vector<int>& page_refs, int page_quant)
+int OptimalAlgorithm(vector<int>& page_refs, int frame_quant)
 {
     deque<int> page_deque;
     int page_misses = 0;
     int index_to_replace;
 
-    page_deque.insert(page_deque.end(), page_refs.begin(), page_refs.begin() + page_quant);
-    page_misses += page_quant;
+    page_deque.insert(page_deque.end(), page_refs.begin(), page_refs.begin() + frame_quant);
+    page_misses += frame_quant;
 
-    for(int i = page_quant; i < (int)page_refs.size(); i++){
+    for(int i = frame_quant; i < (int)page_refs.size(); i++){
         if(find(page_deque.begin(), page_deque.end(), page_refs[i]) != page_deque.end()){
             continue;
         }
@@ -134,16 +134,16 @@ int OptimalAlgorithm(vector<int>& page_refs, int page_quant)
     return page_misses;
 }
 
-int LeastRecentlyUsed(vector<int>& page_refs, int page_quant)
+int LeastRecentlyUsed(vector<int>& page_refs, int frame_quant)
 {
     deque<int> page_deque;
     int page_misses = 0;
     int index_to_replace;
 
-    page_deque.insert(page_deque.end(), page_refs.begin(), page_refs.begin() + page_quant);
-    page_misses += page_quant;
+    page_deque.insert(page_deque.end(), page_refs.begin(), page_refs.begin() + frame_quant);
+    page_misses += frame_quant;
 
-    for(int i = page_quant; i < (int)page_refs.size(); i++){
+    for(int i = frame_quant; i < (int)page_refs.size(); i++){
         if(find(page_deque.begin(), page_deque.end(), page_refs[i]) != page_deque.end()){
             continue;
         }
@@ -161,21 +161,21 @@ int LeastRecentlyUsed(vector<int>& page_refs, int page_quant)
 
 int main(void)
 {
-    int page_quant;
+    int frame_quant;
     string instance_path;
     vector<int> page_refs;
 
     cin >> instance_path;
 
-    page_refs = ReadInstance(instance_path, page_quant);
+    page_refs = ReadInstance(instance_path, frame_quant);
 
     if(page_refs.empty()){
         return 1;
     }
 
-    cout << "FIFO " << FirstInFirstOut(page_refs, page_quant) << '\n';
-    cout << "OTM " << OptimalAlgorithm(page_refs, page_quant) << '\n';
-    cout << "LRU " << LeastRecentlyUsed(page_refs, page_quant) << '\n';
+    cout << "FIFO " << FirstInFirstOut(page_refs, frame_quant) << '\n';
+    cout << "OTM " << OptimalAlgorithm(page_refs, frame_quant) << '\n';
+    cout << "LRU " << LeastRecentlyUsed(page_refs, frame_quant) << '\n';
 
     return 0;
 }
