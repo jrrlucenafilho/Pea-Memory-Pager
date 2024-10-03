@@ -11,10 +11,10 @@ vector<int> ReadInstance(string instance_path, int& page_quant)
 {
     vector<int> page_refs;
     int number;
-    ifstream fp("instances/" + instance_path);
+    ifstream fp(instance_path);
 
     if(!fp){
-        cerr << "Error opening file" << instance_path;
+        cerr << "Error opening file " << instance_path;
         return page_refs;
     }
 
@@ -159,15 +159,15 @@ int LeastRecentlyUsed(vector<int>& page_refs, int page_quant)
     return page_misses;
 }
 
-int main(int argc, char *argv[])
+int main(void)
 {
     int page_quant;
     string instance_path;
     vector<int> page_refs;
 
-    //cin >> instance_path; //TODO: Remember to change when finished debugging
+    cin >> instance_path;
 
-    page_refs = ReadInstance(argv[1], page_quant);
+    page_refs = ReadInstance(instance_path, page_quant);
 
     if(page_refs.empty()){
         return 1;
