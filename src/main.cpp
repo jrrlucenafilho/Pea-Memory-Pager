@@ -29,9 +29,10 @@ vector<int> ReadInstance(string instance_path, int& page_quant)
     return page_refs;
 }
 
+// Util functions
 // Util func for optimal algorithm: Check, from all elements curr in deque has the longest time to be accessed
 // from curr_index's element in page_refs. And return it's index in the deque
-int CalcLongestToBeAccessed(vector<int>& page_refs, deque<int>& page_deque, int curr_index)
+int FurthestFrameForward(vector<int>& page_refs, deque<int>& page_deque, int curr_index)
 {
     int dist;
     int max_dist = 0;
@@ -47,6 +48,32 @@ int CalcLongestToBeAccessed(vector<int>& page_refs, deque<int>& page_deque, int 
         if(dist > max_dist){
             max_dist = dist;
             index_to_replace = i;
+        }
+    }
+
+    return index_to_replace;
+}
+
+// Util func for LRU: Does the same as FurthestFrameForward(). But for already-acessed frames in the sequence
+// returning the index of the frame (in page_deque) that's furthest back (in page_refs sequence)
+int FurthestFrameBackward(vector<int>& page_refs, deque<int>& page_deque, int curr_index)
+{
+    int dist;
+    int max_dist = 0;
+    int index_to_replace = -1;
+
+    for(int i = 0; i < (int)page_deque.size(); i++){
+        // Now use reverse iterators (easier for backwards checking) to search for the first occurrence of the value backwards
+        auto iter = find(page_refs.rbegin() + (page_refs.size() - curr_index), page_refs.rend(), page_deque[i]);
+
+        if(iter != page_refs.rend()){
+            // Calc distance from curr_index to the first-found-position (backwards) of the deque[i] element
+            dist = (iter - page_refs.rbegin()) - (page_refs.size() - curr_index);
+
+            if(dist > max_dist){
+                max_dist = dist;
+                index_to_replace = i;
+            }
         }
     }
 
@@ -95,7 +122,7 @@ int OptimalAlgorithm(vector<int>& page_refs, int page_quant)
         }
 
         // Get the deque index of the element that'll be removed
-        index_to_replace = CalcLongestToBeAccessed(page_refs, page_deque, i);
+        index_to_replace = FurthestFrameForward(page_refs, page_deque, i);
 
         // Actually replace it
         if(index_to_replace != -1){
@@ -109,7 +136,27 @@ int OptimalAlgorithm(vector<int>& page_refs, int page_quant)
 
 int LeastRecentlyUsed(vector<int>& page_refs, int page_quant)
 {
+    deque<int> page_deque;
+    int page_misses = 0;
+    int index_to_replace;
 
+    page_deque.insert(page_deque.end(), page_refs.begin(), page_refs.begin() + page_quant);
+    page_misses += page_quant;
+
+    for(int i = page_quant; i < (int)page_refs.size(); i++){
+        if(find(page_deque.begin(), page_deque.end(), page_refs[i]) != page_deque.end()){
+            continue;
+        }
+
+        index_to_replace = FurthestFrameBackward(page_refs, page_deque, i);
+
+        if(index_to_replace != -1){
+            page_deque[index_to_replace] = page_refs[i];
+        }
+        page_misses++;
+    }
+
+    return page_misses;
 }
 
 int main(int argc, char *argv[])
@@ -128,7 +175,7 @@ int main(int argc, char *argv[])
 
     cout << "FIFO " << FirstInFirstOut(page_refs, page_quant) << '\n';
     cout << "OTM " << OptimalAlgorithm(page_refs, page_quant) << '\n';
-    //cout << "LRU " << LeastRecentlyUsed(page_refs, page_quant) << '\n';
+    cout << "LRU " << LeastRecentlyUsed(page_refs, page_quant) << '\n';
 
     return 0;
 }
