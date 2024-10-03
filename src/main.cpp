@@ -89,7 +89,9 @@ int FirstInFirstOut(vector<int>& page_refs, int frame_quant)
 
     // First fill up the deque with the first 'frame_quant' values of page_refs vec
     page_deque.insert(page_deque.end(), page_refs.begin(), page_refs.begin() + frame_quant);
-    page_misses += frame_quant;
+
+    // Add up initial page_misses. If the page_refs sequence is shorter than frame_quant (rare edge case), add up it's size instead
+    page_misses += min(frame_quant, (int)page_refs.size());
 
     // Then go through page_refs checking it, starting from the element after frame_quant elements from beginning
     for(int i = frame_quant; i < (int)page_refs.size(); i++){
@@ -114,7 +116,7 @@ int OptimalAlgorithm(vector<int>& page_refs, int frame_quant)
     int index_to_replace;
 
     page_deque.insert(page_deque.end(), page_refs.begin(), page_refs.begin() + frame_quant);
-    page_misses += frame_quant;
+    page_misses += min(frame_quant, (int)page_refs.size());
 
     for(int i = frame_quant; i < (int)page_refs.size(); i++){
         if(find(page_deque.begin(), page_deque.end(), page_refs[i]) != page_deque.end()){
@@ -141,7 +143,7 @@ int LeastRecentlyUsed(vector<int>& page_refs, int frame_quant)
     int index_to_replace;
 
     page_deque.insert(page_deque.end(), page_refs.begin(), page_refs.begin() + frame_quant);
-    page_misses += frame_quant;
+    page_misses += min(frame_quant, (int)page_refs.size());
 
     for(int i = frame_quant; i < (int)page_refs.size(); i++){
         if(find(page_deque.begin(), page_deque.end(), page_refs[i]) != page_deque.end()){
@@ -170,6 +172,7 @@ int main(void)
     page_refs = ReadInstance(instance_path, frame_quant);
 
     if(page_refs.empty()){
+        cerr << "Sequence is empty!\n";
         return 1;
     }
 
