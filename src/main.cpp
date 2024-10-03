@@ -81,7 +81,6 @@ int FurthestFrameBackward(vector<int>& page_refs, deque<int>& page_deque, int cu
 }
 
 // Algorithms, each returns the number of page misses that happened
-// Assumes frame_quant is always smaller than page_ref list
 int FirstInFirstOut(vector<int>& page_refs, int frame_quant)
 {
     deque<int> page_deque;  // double-ended queue for iterators and extra pop funcs
