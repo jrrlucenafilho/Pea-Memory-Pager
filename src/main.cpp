@@ -14,7 +14,7 @@ vector<int> ReadInstance(string instance_path, int& frame_quant)
     ifstream fp(instance_path);
 
     if(!fp){
-        cerr << "Error opening file " << instance_path;
+        cerr << "Error opening file " << instance_path << ' ';
         return page_refs;
     }
 
